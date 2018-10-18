@@ -5,7 +5,6 @@
 package client;
 
 import com.lloseng.ocsf.client.ObservableClient;
-import ocsf.client.*;
 import common.*;
 import java.io.*;
 import java.util.Observable;
@@ -104,11 +103,13 @@ public class ChatClient implements Observer {
                 clientUI.display("You can't quit without being disconnected");
         }
         else if(command.equals("logoff")){
-            try {
-                comm.sendToServer("#logoff");
-                comm.closeConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(comm.isConnected()) {
+                try {
+                    comm.sendToServer("#logoff");
+                    comm.closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         else if(command.contains("sethost")){
@@ -161,15 +162,42 @@ public class ChatClient implements Observer {
    * This method terminates the client.
    */
   public void quit() {
-    try {
-        comm.closeConnection();
-    } catch (IOException e) {
-    }
+      if(comm.isConnected()) {
+          try {
+              comm.sendToServer("#logoff");
+              comm.closeConnection();
+          } catch (IOException e) {
+          }
+      }
     System.exit(0);
   }
+
+  public void connectionClosed(){
+      clientUI.display("The connection is closed by the server");
+  }
+
+  public void connectionEstablished(){
+      clientUI.display("Connection is established with the server");
+  }
+
+  public void connectionException(Exception exc){
+      clientUI.display("Exception with the connection to the server: " + exc.toString());
+  }
+
+
     @Override
     public void update(Observable o, Object arg) {
-        this.handleMessageFromServer(arg);
+      if(arg instanceof String){
+          if(arg.equals(ObservableClient.CONNECTION_CLOSED))
+              this.connectionClosed();
+          else if(arg.equals(ObservableClient.CONNECTION_ESTABLISHED))
+              connectionEstablished();
+          else
+              this.handleMessageFromServer(arg);
+      }
+      else if(arg instanceof Exception)
+          this.connectionException((Exception)arg);
+
     }
 }
 //End of ChatClient class
