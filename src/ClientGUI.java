@@ -42,6 +42,8 @@ public class ClientGUI extends Application implements ChatIF {
         primaryStage.setTitle("Simplechat 4");
         GridPane gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
         Scene scene = new Scene(gridPane, 400, 300);
         scene.setFill(Color.LIGHTBLUE);
         Text connexion = new Text("Connexion");
