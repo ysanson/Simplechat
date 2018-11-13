@@ -7,8 +7,7 @@ package client;
 import com.lloseng.ocsf.client.ObservableClient;
 import common.*;
 import java.io.*;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 /**
  * This class overrides some of the methods defined in the abstract
@@ -29,7 +28,7 @@ public class ChatClient implements Observer {
   ChatIF clientUI;
   private String id;
   private ObservableClient comm;
-
+  private List<String> listofClientsConnected;
 
   //Constructors ****************************************************
 
@@ -52,6 +51,7 @@ public class ChatClient implements Observer {
         clientUI.display("Now connected. You may be able to send messages from now on.\nType #help for a list of available commands.");
         comm.sendToServer("#login " + id);
     }
+    listofClientsConnected = new ArrayList<>();
   }
 
 
@@ -152,6 +152,13 @@ public class ChatClient implements Observer {
                 clientUI.display("Error. Command usage: #id [name]");
             }
         }
+        else if(command.contains("connectedClients")){
+            String clients = command.substring(command.indexOf(" "));
+            String[] clientsName = clients.split("\n");
+            listofClientsConnected = new ArrayList<>();
+            listofClientsConnected.addAll(Arrays.asList(clientsName));
+        }
+
         else if(command.contains("help"))
             clientUI.display("#quit / #logoff / sethost [host] / #setport [port] / #login");
         else
@@ -184,6 +191,13 @@ public class ChatClient implements Observer {
       clientUI.display("Exception with the connection to the server: " + exc.toString());
   }
 
+  public void setListofClientsConnected(List<String> listofClientsConnected){
+      this.listofClientsConnected = listofClientsConnected;
+  }
+
+  public List<String> getListofClientsConnected(){
+      return listofClientsConnected;
+  }
 
     @Override
     public void update(Observable o, Object arg) {

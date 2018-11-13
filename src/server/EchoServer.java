@@ -3,8 +3,9 @@ package server;// This file contains material supporting section 3.7 of the text
 // license found at www.lloseng.com 
 
 import java.io.*;
-import java.util.Observable;
-import java.util.Observer;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import com.lloseng.ocsf.server.ConnectionToClient;
 import com.lloseng.ocsf.server.ObservableOriginatorServer;
 import com.lloseng.ocsf.server.OriginatorMessage;
@@ -30,6 +31,8 @@ public class EchoServer implements Observer {
      * The default port to listen on.
      */
     final public static int DEFAULT_PORT = 5555;
+    private Date currentDate;
+    private SimpleDateFormat format;
 
     //Constructors ****************************************************
 
@@ -43,6 +46,8 @@ public class EchoServer implements Observer {
         comm.addObserver(this);
         this.serverUI = serverUI;
         serverUI.display("Type #help for a list of commands, #start to start the server.");
+        currentDate = new Date();
+        format = new SimpleDateFormat(" '['HH:mm:ss']'");
     }
 
 
@@ -60,7 +65,7 @@ public class EchoServer implements Observer {
             handleCmdFromClient(((String) msg).substring(1), client);
         else {
             serverUI.display("Message received: " + msg + " from " + client.getInfo("id"));
-            comm.sendToAllClients(client.getInfo("id") + ">" + msg);
+            comm.sendToAllClients( format.format(currentDate) + client.getInfo("id") + " : " + msg);
         }
     }
 
@@ -89,6 +94,8 @@ public class EchoServer implements Observer {
                     try {
                         client.setInfo("id", cmd.split(" ")[1]);
                         serverUI.display("Client " + client.getInfo("id") + " has connected.");
+                        List<String> listofConnectedClients = new ArrayList<>();
+
                     } catch (Exception e) {
                         serverUI.display("Invalid command format for the client " + client.getId());
                     }
