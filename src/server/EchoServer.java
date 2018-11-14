@@ -86,6 +86,8 @@ public class EchoServer implements Observer {
             if (cmd.equals("logoff")) {
                 try {
                     client.close();
+                    String allClients = getAllLogins();
+                    comm.sendToAllClients("#connectedClients " + allClients);
                 } catch (IOException e) {
                     serverUI.display("Error in disconnecting the client");
                 }
@@ -94,8 +96,8 @@ public class EchoServer implements Observer {
                     try {
                         client.setInfo("id", cmd.split(" ")[1]);
                         serverUI.display("Client " + client.getInfo("id") + " has connected.");
-                        List<String> listofConnectedClients = new ArrayList<>();
-
+                        String allClients = getAllLogins();
+                        comm.sendToAllClients("#connectedClients " + allClients);
                     } catch (Exception e) {
                         serverUI.display("Invalid command format for the client " + client.getId());
                     }
@@ -107,6 +109,17 @@ public class EchoServer implements Observer {
                 }
             }
         }
+    }
+
+    public String getAllLogins(){
+        StringBuilder allLogins = new StringBuilder();
+        ConnectionToClient[] allClients = (ConnectionToClient[]) comm.getClientConnections();
+        for (ConnectionToClient c: allClients) {
+            allLogins.append(c.getInfo("id"));
+            allLogins.append("\n");
+        }
+
+        return allLogins.toString();
     }
 
     /**

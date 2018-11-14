@@ -2,12 +2,10 @@ import client.ChatClient;
 import common.ChatIF;
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -45,10 +43,16 @@ public class ClientGUI extends Application implements ChatIF {
     private int currentPort;
     private BooleanProperty connexionStatus = new SimpleBooleanProperty(false);
     private StringProperty msg = new SimpleStringProperty();
+    private ListProperty<String> clientList = new SimpleListProperty<>();
 
     @Override
     public void display(String message) {
         msg.setValue(message);
+    }
+
+    @Override
+    public void updateClientList(){
+        clientList.setValue((ObservableList<String>) client.getListofClientsConnected());
     }
 
     @Override
@@ -70,10 +74,10 @@ public class ClientGUI extends Application implements ChatIF {
         ScrollPane conversations = new ScrollPane();
         conversations.setFitToWidth(true);
         conversations.setFitToHeight(true);
-        conversations.setPrefSize(defaultWidth, defaultHeight);
+        conversations.setPrefSize(defaultWidth-200, defaultHeight);
         Text convo = new Text();
         convo.setFontSmoothingType(FontSmoothingType.LCD);
-        convo.setWrappingWidth(conversations.getHvalue()-1);
+        convo.setWrappingWidth(defaultWidth-201);
         conversations.setContent(convo);
         HBox sendMsgBar = new HBox();
         sendMsgBar.setSpacing(20);
@@ -81,7 +85,7 @@ public class ClientGUI extends Application implements ChatIF {
         Text enterMsg = new Text("Entrez votre message : ");
         enterMsg.setFont(Font.font("Cambria", FontPosture.ITALIC, 15));
         TextField msgInput = new TextField();
-        msgInput.setPrefWidth(defaultWidth-10);
+        msgInput.setPrefWidth(defaultWidth-500);
         Button sendBtn = new Button("Envoyer");
         msgInput.setOnKeyPressed(event -> {
             if(event.getCode().equals(KeyCode.ENTER)){
@@ -114,7 +118,8 @@ public class ClientGUI extends Application implements ChatIF {
                 portNumber.setText("Port : ");
             }
         });
-        /*
+
+
         VBox connectedPane = new VBox();
         connectedPane.setSpacing(20);
         connectedPane.setPrefWidth(150);
@@ -123,8 +128,12 @@ public class ClientGUI extends Application implements ChatIF {
         Text connectedTitle = new Text("Utilisateurs connectés");
         connectedTitle.setFont(Font.font("Cambria", 15));
         Text connectedUsers = new Text();
-        connectedPane.getChildren().addAll(connectedTitle);
-        */
+        connectedPane.getChildren().addAll(connectedTitle, connectedUsers);
+        clientList.addListener((observable, oldValue, newValue) -> {
+            for (String client: newValue) {
+                connectedUsers.setText(connectedUsers.getText() + "\n" + client);
+            }
+        });
 
         msg.addListener((observable, oldValue, newValue) -> convo.setText(convo.getText() + "\n" + msg.getValue()));
         root.setBottom(sendMsgBar);

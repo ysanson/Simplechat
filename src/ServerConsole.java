@@ -17,6 +17,11 @@ public class ServerConsole implements ChatIF {
         System.out.println("> " + message);
     }
 
+    @Override
+    public void updateClientList() {
+
+    }
+
 
     /**
      * This method waits for input from the console.  Once it is

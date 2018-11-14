@@ -94,8 +94,13 @@ public class ClientConsole implements ChatIF
     System.out.println("> " + message);
   }
 
-  
-  //Class methods ***************************************************
+    @Override
+    public void updateClientList() {
+        System.out.println("Voilà");
+    }
+
+
+    //Class methods ***************************************************
   
   /**
    * This method is responsible for the creation of the Client UI.
