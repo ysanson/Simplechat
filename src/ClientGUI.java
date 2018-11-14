@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 public class ClientGUI extends Application implements ChatIF {
@@ -41,9 +42,9 @@ public class ClientGUI extends Application implements ChatIF {
     private String loginName;
     private String serveurID;
     private int currentPort;
-    private BooleanProperty connexionStatus = new SimpleBooleanProperty(false);
+    private BooleanProperty connexionStatus = new SimpleBooleanProperty(false); //False: not connected True: connected
     private StringProperty msg = new SimpleStringProperty();
-    private ListProperty<String> clientList = new SimpleListProperty<>();
+    private Text connectedUsers;
 
     @Override
     public void display(String message) {
@@ -52,14 +53,20 @@ public class ClientGUI extends Application implements ChatIF {
 
     @Override
     public void updateClientList(){
-        clientList.setValue((ObservableList<String>) client.getListofClientsConnected());
+        StringBuilder sb = new StringBuilder();
+        for (String c:client.getListofClientsConnected()) {
+            sb.append(c);
+            sb.append("\n");
+        }
+        connectedUsers.setText(sb.toString());
     }
 
     @Override
     public void start(Stage primaryStage){
         BorderPane root = new BorderPane();
-        int defaultHeight = 700, defaultWidth = 900;
+        int defaultHeight = 800, defaultWidth = 1000;
         Scene scene = new Scene(root, defaultWidth, defaultHeight, Color.LIGHTGRAY);
+        //Title bar
         HBox titleBar = new HBox();
         Text title = new Text("Simple Chat 4");
         title.setFont(Font.font("Cambria", 20));
@@ -71,21 +78,42 @@ public class ClientGUI extends Application implements ChatIF {
         Text pseudo = new Text("Pseudo :");
         Text serverName = new Text("Serveur : ");
         Text portNumber = new Text("Port : ");
+        Button connectBtn = new Button("Connexion");
+        connectBtn.setOnAction(event -> {
+            if(client!=null){
+                Alert disc = new Alert(Alert.AlertType.CONFIRMATION);
+                disc.setTitle("Déconnexion");
+                disc.setContentText("Voulez-vous vraiment vous déconnecter ?");
+                Optional<ButtonType> result = disc.showAndWait();
+                if(result.get()==ButtonType.OK){
+                    client.disconnect();
+                    client=null;
+                    connexionStatus.set(false);
+                }
+            }else{
+                connexionUI();
+            }
+        });
+        titleBar.getChildren().addAll(title, status, pseudo, serverName, portNumber, connectBtn);
+
+        //Middle part
         ScrollPane conversations = new ScrollPane();
         conversations.setFitToWidth(true);
         conversations.setFitToHeight(true);
-        conversations.setPrefSize(defaultWidth-200, defaultHeight);
+        conversations.setPrefSize(700, defaultHeight);
         Text convo = new Text();
         convo.setFontSmoothingType(FontSmoothingType.LCD);
-        convo.setWrappingWidth(defaultWidth-201);
+        convo.setWrappingWidth(690);
         conversations.setContent(convo);
+
+        //Bottom part
         HBox sendMsgBar = new HBox();
         sendMsgBar.setSpacing(20);
         sendMsgBar.setPadding(new Insets(15, 12, 15, 12));
         Text enterMsg = new Text("Entrez votre message : ");
         enterMsg.setFont(Font.font("Cambria", FontPosture.ITALIC, 15));
         TextField msgInput = new TextField();
-        msgInput.setPrefWidth(defaultWidth-500);
+        msgInput.setPrefWidth(defaultWidth-300);
         Button sendBtn = new Button("Envoyer");
         msgInput.setOnKeyPressed(event -> {
             if(event.getCode().equals(KeyCode.ENTER)){
@@ -101,6 +129,24 @@ public class ClientGUI extends Application implements ChatIF {
                 msgInput.setText("");
             }
         });
+
+        sendMsgBar.getChildren().addAll(enterMsg, msgInput, sendBtn);
+
+        //Right part
+        VBox connectedPane = new VBox();
+        connectedPane.setSpacing(20);
+        connectedPane.setPrefWidth(200);
+        connectedPane.setPadding(new Insets(15, 12, 15, 12));
+        root.setRight(connectedPane);
+        Text connectedTitle = new Text("Utilisateurs connectés");
+        connectedTitle.setFont(Font.font("Cambria", 15));
+        connectedUsers = new Text();
+        connectedUsers.setWrappingWidth(140);
+        connectedPane.getChildren().addAll(connectedTitle, connectedUsers);
+
+        msg.addListener((observable, oldValue, newValue) -> convo.setText(convo.getText() + "\n" + msg.getValue()));
+        root.setBottom(sendMsgBar);
+        root.setCenter(conversations);
         connexionStatus.addListener((observable, oldValue, newValue) -> {
             if(connexionStatus.getValue()) {
                 status.setText("Statut : connecté");
@@ -109,6 +155,7 @@ public class ClientGUI extends Application implements ChatIF {
                 pseudo.setFill(Color.DARKBLUE);
                 serverName.setText("Serveur : " +serveurID);
                 portNumber.setText("Port : " + currentPort);
+                connectBtn.setText("Déconnexion");
             }
             else {
                 status.setText("Statut : déconnecté");
@@ -116,30 +163,10 @@ public class ClientGUI extends Application implements ChatIF {
                 pseudo.setText("Pseudo : ");
                 serverName.setText("Serveur : ");
                 portNumber.setText("Port : ");
+                connectBtn.setText("Connexion");
             }
         });
 
-
-        VBox connectedPane = new VBox();
-        connectedPane.setSpacing(20);
-        connectedPane.setPrefWidth(150);
-        connectedPane.setPadding(new Insets(15, 12, 15, 12));
-        root.setRight(connectedPane);
-        Text connectedTitle = new Text("Utilisateurs connectés");
-        connectedTitle.setFont(Font.font("Cambria", 15));
-        Text connectedUsers = new Text();
-        connectedPane.getChildren().addAll(connectedTitle, connectedUsers);
-        clientList.addListener((observable, oldValue, newValue) -> {
-            for (String client: newValue) {
-                connectedUsers.setText(connectedUsers.getText() + "\n" + client);
-            }
-        });
-
-        msg.addListener((observable, oldValue, newValue) -> convo.setText(convo.getText() + "\n" + msg.getValue()));
-        root.setBottom(sendMsgBar);
-        root.setCenter(conversations);
-        titleBar.getChildren().addAll(title, status, pseudo, serverName, portNumber);
-        sendMsgBar.getChildren().addAll(enterMsg, msgInput, sendBtn);
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -217,6 +244,7 @@ public class ClientGUI extends Application implements ChatIF {
         connexionStage.setScene(scene);
         connexionStage.show();
     }
+
 
     private void createChatClient() throws IOException {
         if(client!=null){

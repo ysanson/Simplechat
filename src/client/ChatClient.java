@@ -62,14 +62,27 @@ public class ChatClient implements Observer {
    *
    * @param msg The message from the server.
    */
-  public void handleMessageFromServer(Object msg) {
-      if(((String)msg).equals("#logoff")){
+  private void handleMessageFromServer(Object msg) {
+      if(((String)msg).startsWith("#"))
+          handleCommandFromServer(((String)msg).substring(1));
+      else
+        clientUI.display(msg.toString());
+  }
+
+  private void handleCommandFromServer(String command){
+      if(command.contains("logoff")){
           clientUI.display("Now logging off");
           try {
               comm.closeConnection();
           } catch (IOException e) {}
       }
-      clientUI.display(msg.toString());
+      else if(command.contains("connectedClients")){
+          String clients = command.substring(command.indexOf(" "));
+          String[] clientsName = clients.split("\n");
+          listofClientsConnected = new ArrayList<>();
+          listofClientsConnected.addAll(Arrays.asList(clientsName));
+          clientUI.updateClientList();
+      }
   }
 
   /**
@@ -152,13 +165,6 @@ public class ChatClient implements Observer {
                 clientUI.display("Error. Command usage: #id [name]");
             }
         }
-        else if(command.contains("connectedClients")){
-            String clients = command.substring(command.indexOf(" "));
-            String[] clientsName = clients.split("\n");
-            listofClientsConnected = new ArrayList<>();
-            listofClientsConnected.addAll(Arrays.asList(clientsName));
-        }
-
         else if(command.contains("help"))
             clientUI.display("#quit / #logoff / sethost [host] / #setport [port] / #login");
         else
@@ -176,7 +182,19 @@ public class ChatClient implements Observer {
           } catch (IOException e) {
           }
       }
-    System.exit(0);
+      System.exit(0);
+  }
+
+  public void disconnect(){
+      if(comm.isConnected()) {
+          try {
+              comm.sendToServer("#logoff");
+              comm.closeConnection();
+              clientUI.display("Properly disconnected.");
+          } catch (IOException e) {
+              clientUI.display("Couldn't properly disconnect.");
+          }
+      }
   }
 
   public void connectionClosed(){

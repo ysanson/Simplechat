@@ -24,8 +24,8 @@ import common.ChatIF;
 public class EchoServer implements Observer {
     //Class variables *************************************************
 
-    ChatIF serverUI;
-    ObservableOriginatorServer comm;
+    private ChatIF serverUI;
+    private ObservableOriginatorServer comm;
 
     /**
      * The default port to listen on.
@@ -65,6 +65,7 @@ public class EchoServer implements Observer {
             handleCmdFromClient(((String) msg).substring(1), client);
         else {
             serverUI.display("Message received: " + msg + " from " + client.getInfo("id"));
+            currentDate = new Date();
             comm.sendToAllClients( format.format(currentDate) + client.getInfo("id") + " : " + msg);
         }
     }
@@ -100,6 +101,7 @@ public class EchoServer implements Observer {
                         comm.sendToAllClients("#connectedClients " + allClients);
                     } catch (Exception e) {
                         serverUI.display("Invalid command format for the client " + client.getId());
+                        e.printStackTrace();
                     }
                 } else {
                     try {
@@ -113,9 +115,9 @@ public class EchoServer implements Observer {
 
     public String getAllLogins(){
         StringBuilder allLogins = new StringBuilder();
-        ConnectionToClient[] allClients = (ConnectionToClient[]) comm.getClientConnections();
-        for (ConnectionToClient c: allClients) {
-            allLogins.append(c.getInfo("id"));
+        Thread[] allClients = comm.getClientConnections();
+        for (Thread c: allClients) {
+            allLogins.append(((ConnectionToClient) c).getInfo("id"));
             allLogins.append("\n");
         }
 
