@@ -185,6 +185,9 @@ public class ChatClient implements Observer {
       System.exit(0);
   }
 
+    /**
+     * This method disconnects the client but does not terminates it.
+     */
   public void disconnect(){
       if(comm.isConnected()) {
           try {

@@ -46,11 +46,18 @@ public class ClientGUI extends Application implements ChatIF {
     private StringProperty msg = new SimpleStringProperty();
     private Text connectedUsers;
 
+    /**
+     * Display the message being received.
+     * @param message The message received.
+     */
     @Override
     public void display(String message) {
         msg.setValue(message);
     }
 
+    /**
+     * ChatIF method: call the refreshing of the client list in the UI.
+     */
     @Override
     public void updateClientList(){
         StringBuilder sb = new StringBuilder();
@@ -61,6 +68,10 @@ public class ClientGUI extends Application implements ChatIF {
         connectedUsers.setText(sb.toString());
     }
 
+    /**
+     * Creating the main frame
+     * @param primaryStage
+     */
     @Override
     public void start(Stage primaryStage){
         BorderPane root = new BorderPane();
@@ -89,9 +100,10 @@ public class ClientGUI extends Application implements ChatIF {
                     client.disconnect();
                     client=null;
                     connexionStatus.set(false);
+                    connectedUsers.setText("");
                 }
             }else{
-                connexionUI();
+                connectionUI();
             }
         });
         titleBar.getChildren().addAll(title, status, pseudo, serverName, portNumber, connectBtn);
@@ -175,10 +187,13 @@ public class ClientGUI extends Application implements ChatIF {
                 client.quit();
             }
         });
-        connexionUI();
+        connectionUI();
     }
-    
-    private void connexionUI(){
+
+    /**
+     * Creating the Connection window.
+     */
+    private void connectionUI(){
         Stage connexionStage = new Stage();
         connexionStage.setAlwaysOnTop(true);
         connexionStage.setResizable(false);
@@ -245,7 +260,10 @@ public class ClientGUI extends Application implements ChatIF {
         connexionStage.show();
     }
 
-
+    /**
+     * Used to create a ChatClient instance.
+     * @throws IOException
+     */
     private void createChatClient() throws IOException {
         if(client!=null){
             client.quit();
@@ -253,6 +271,8 @@ public class ClientGUI extends Application implements ChatIF {
         client= new ChatClient(serveurID, currentPort, this, loginName);
 
     }
+
+
     public static void main(String[] args){
         Application.launch(ClientGUI.class, args);
     }

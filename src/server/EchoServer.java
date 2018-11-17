@@ -113,6 +113,10 @@ public class EchoServer implements Observer {
         }
     }
 
+    /**
+     * Used to construct a list of all login names.
+     * @return String : Login names are stored as such : [login] \n
+     */
     public String getAllLogins(){
         StringBuilder allLogins = new StringBuilder();
         Thread[] allClients = comm.getClientConnections();
@@ -125,46 +129,9 @@ public class EchoServer implements Observer {
     }
 
     /**
-     * This method overrides the one in the superclass.  Called
-     * when the server starts listening for connections.
+     * If the server sends a message to the clients, this method is called.
+     * @param message The message being sent.
      */
-    protected void serverStarted() {
-        serverUI.display
-                ("Server listening for connections on port " + comm.getPort());
-    }
-
-    /**
-     * This method overrides the one in the superclass.  Called
-     * when the server stops listening for connections.
-     */
-    protected void serverStopped() {
-        serverUI.display
-                ("Server has stopped listening for connections.");
-    }
-
-    protected void serverClosed(){
-        serverUI.display("Server closed.");
-    }
-
-    protected void listeningException(Object msg){
-        serverUI.display(msg.toString());
-    }
-
-    protected void clientConnected(ConnectionToClient client) {
-        serverUI.display("Client " + client.getId() + " has connected.");
-    }
-
-
-    synchronized protected void clientDisconnected(ConnectionToClient client) {
-        serverUI.display("Client " + client.getId() + " has disconnected.");
-    }
-
-    synchronized protected void clientException(
-            ConnectionToClient client, Throwable exception) {
-        serverUI.display("Client " + client.getId() + " disconnected abnormally.");
-    }
-
-
     public void handleMessageFromServerUI(String message) {
         if (message.startsWith("#")) {
             handleCommand(message.substring(1));
@@ -172,6 +139,10 @@ public class EchoServer implements Observer {
             comm.sendToAllClients("SERVER MSG >" + message);
     }
 
+    /**
+     * If the server UI receives a command, this function will be called.
+     * @param command The command to check.
+     */
     public void handleCommand(String command) {
         if (command.equals("start")) {
             if (!comm.isListening()) {
@@ -216,6 +187,52 @@ public class EchoServer implements Observer {
             serverUI.display("Unknown command. Type #help for a list of commands.");
     }
 
+    /**
+     * This method overrides the one in the superclass.  Called
+     * when the server starts listening for connections.
+     */
+    protected void serverStarted() {
+        serverUI.display
+                ("Server listening for connections on port " + comm.getPort());
+    }
+
+    /**
+     * This method overrides the one in the superclass.  Called
+     * when the server stops listening for connections.
+     */
+    protected void serverStopped() {
+        serverUI.display
+                ("Server has stopped listening for connections.");
+    }
+
+
+    protected void serverClosed(){
+        serverUI.display("Server closed.");
+    }
+
+    protected void listeningException(Object msg){
+        serverUI.display(msg.toString());
+    }
+
+    protected void clientConnected(ConnectionToClient client) {
+        serverUI.display("Client " + client.getId() + " has connected.");
+    }
+
+
+    synchronized protected void clientDisconnected(ConnectionToClient client) {
+        serverUI.display("Client " + client.getId() + " has disconnected.");
+    }
+
+    synchronized protected void clientException(
+            ConnectionToClient client, Throwable exception) {
+        serverUI.display("Client " + client.getId() + " disconnected abnormally.");
+    }
+
+    /**
+     * This method is being called whenever the Observable object is changed.
+     * @param observable The Observable object, here an instance of ObservableServer.
+     * @param o The update
+     */
     @Override
     public void update(Observable observable, Object o) {
         if(o instanceof OriginatorMessage){
