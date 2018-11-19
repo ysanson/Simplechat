@@ -81,7 +81,7 @@ public class ChatClient implements Observer {
           String[] clientsName = clients.split("\n");
           listofClientsConnected = new ArrayList<>();
           listofClientsConnected.addAll(Arrays.asList(clientsName));
-          clientUI.updateClientList();
+          clientUI.updateClientList(listofClientsConnected);
       }
   }
 

@@ -4,6 +4,8 @@
 
 package common;
 
+import java.util.List;
+
 /**
  * This interface implements the abstract method used to display
  * objects onto the client or server UIs.
@@ -14,10 +16,14 @@ package common;
  */
 public interface ChatIF 
 {
-  /**
-   * Method that when overriden is used to display objects onto
-   * a UI.
-   */
-  public abstract void display(String message);
-  public abstract void updateClientList();
+    /**
+    * Method that when overriden is used to display objects onto
+    * a UI.
+    */
+    void display(String message);
+
+    /**
+     * Method that when overriden is used to update the client list onto a UI.
+     */
+    void updateClientList(List<String> clients);
 }

@@ -89,7 +89,7 @@ public abstract class AbstractClient implements Runnable
   * Needed so that the loop in the run method knows when to stop
   * waiting for incoming messages.
   */
-  private boolean readyToStop= false;
+  private boolean readyToStop=false;
 
   /**
   * The server's host name.

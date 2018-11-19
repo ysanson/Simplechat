@@ -1,11 +1,12 @@
 import common.ChatIF;
 import server.EchoServer;
 import java.io.*;
+import java.util.List;
 
 public class ServerConsole implements ChatIF {
 
     final public static int DEFAULT_PORT = 5555;
-    EchoServer server;
+    private EchoServer server;
 
     public ServerConsole(int port){
         server=new EchoServer(port, this);
@@ -18,7 +19,7 @@ public class ServerConsole implements ChatIF {
     }
 
     @Override
-    public void updateClientList() {
+    public void updateClientList(List<String> clients) {
 
     }
 

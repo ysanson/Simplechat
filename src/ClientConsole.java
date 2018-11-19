@@ -3,6 +3,8 @@
 // license found at www.lloseng.com 
 
 import java.io.*;
+import java.util.List;
+
 import client.*;
 import common.*;
 
@@ -95,7 +97,7 @@ public class ClientConsole implements ChatIF
   }
 
     @Override
-    public void updateClientList() {
+    public void updateClientList(List<String> clients) {
         System.out.println("Voilà");
     }
 
