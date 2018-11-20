@@ -45,7 +45,7 @@ public class ClientGUI extends Application implements ChatIF {
     private int currentPort;
     private BooleanProperty connexionStatus = new SimpleBooleanProperty(false); //False: not connected True: connected
     private Text connectedUsers;
-    private Text convo;
+    private TextArea convo;
 
     /**
      * ChatIF method: Display the message being received.
@@ -113,9 +113,10 @@ public class ClientGUI extends Application implements ChatIF {
         ScrollPane conversations = new ScrollPane();
         conversations.setFitToWidth(true);
         conversations.setFitToHeight(true);
-        convo = new Text();
-        convo.setFontSmoothingType(FontSmoothingType.LCD);
-        convo.setWrappingWidth(conversations.getHvalue()-10);
+        convo = new TextArea();
+        convo.setEditable(false);
+        convo.setPrefWidth(conversations.getHvalue());
+        convo.setWrapText(true);
         conversations.setContent(convo);
 
         //Bottom part
@@ -264,11 +265,10 @@ public class ClientGUI extends Application implements ChatIF {
      * @throws IOException
      */
     private void createChatClient() throws IOException {
-        if(client!=null){
-            client.quit();
-        }
-        client= new ChatClient(serveurID, currentPort, this, loginName);
-
+        System.out.println("CreateClatClient");
+        if(client==null) {
+            client = new ChatClient(serveurID, currentPort, this, loginName);
+    }
     }
 
 
